@@ -1,6 +1,8 @@
 /__pycache__
 *.con
 /openctp
+/openctp_ctp
+/openctp_tts
 config.yaml
 /con_file
 __pycache__
