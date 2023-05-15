@@ -7,6 +7,7 @@ from anyio.abc import TaskGroup
 from constants import CallError
 from constants import TdConstant as Constant
 from clients import CTPTdClient
+from model.td_message_model import *
 
 class TdClient(object):
     """
@@ -53,7 +54,11 @@ class TdClient(object):
             await self.start(user_id, password)
         else:
             if message_type in self._call_map:
-                await anyio.to_thread.run_sync(self._call_map[message_type], request)
+                if callable(self._call_map[message_type]):
+                    await anyio.to_thread.run_sync(self._call_map[message_type], request)
+                else:
+                    method, model = self._call_map[message_type]
+                    await anyio.to_thread.run_sync(method, model.parse_obj(request))
             else:
                 response = {
                     Constant.MessageType: message_type,
@@ -105,7 +110,7 @@ class TdClient(object):
             logging.info(f"exception in td client {e} {type(e)}")
 
     def _init_call_map(self):
-        self._call_map[Constant.ReqQryInstrument] = self._client.reqQryInstrument
+        self._call_map[Constant.ReqQryInstrument] = (self._client.ReqQryInstrument, ReqQryInstrumentModel)
         self._call_map[Constant.ReqQryExchange] = self._client.ReqQryExchange
         self._call_map[Constant.ReqQryProduct] = self._client.ReqQryProduct
         self._call_map[Constant.ReqQryDepthMarketData] = self._client.ReqQryDepthMarketData

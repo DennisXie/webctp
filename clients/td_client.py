@@ -5,6 +5,7 @@ from openctp import thosttraderapi as tdapi
 from constants import CallError
 from constants import TdConstant as Constant
 from utils import CTPObjectHelper, GlobalConfig, MathHelper
+from model.td_message_model import ReqQryInstrumentModel
 
 
 class TdClient(tdapi.CThostFtdcTraderSpi):
@@ -137,9 +138,9 @@ class TdClient(tdapi.CThostFtdcTraderSpi):
 
         self.rsp_callback(response)
     
-    def reqQryInstrument(self, request: dict[str, any]) -> int:
-        req, requestId = CTPObjectHelper.extract_request(request, Constant.QryInstrument, tdapi.CThostFtdcQryInstrumentField)
-        ret = self._api.ReqQryInstrument(req, requestId)
+    def ReqQryInstrument(self, request: ReqQryInstrumentModel) -> int:
+        # req, requestId = CTPObjectHelper.extract_request(request, Constant.QryInstrument, tdapi.CThostFtdcQryInstrumentField)
+        ret = self._api.ReqQryInstrument(request.QryInstrument.object, request.RequestID)
         self.method_called(Constant.OnRspQryInstrument, ret)
     
     def OnRspQryInstrument(self, pInstrument: tdapi.CThostFtdcInstrumentField, pRspInfo: tdapi.CThostFtdcRspInfoField, nRequestID: int, bIsLast: bool):
